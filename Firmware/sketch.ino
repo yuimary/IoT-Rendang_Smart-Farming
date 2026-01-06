@@ -9,7 +9,7 @@ const char* password = "";
 const char* mqtt_server = "test.mosquitto.org"; // Broker Publik Gratis
 
 // GANTI "nim_kalian" DENGAN NIM ANDA AGAR TIDAK BENTROK
-const char* mqtt_topic = "projek_iot/smart_farming/nim_kalian"; 
+const char* mqtt_topic = "projek_iot/smart_farming/iotrendangganteng"; 
 
 // --- PIN CONFIG ---
 #define DHTPIN 15
