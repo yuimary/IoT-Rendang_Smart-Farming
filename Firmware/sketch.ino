@@ -27,6 +27,8 @@ Servo myservo;
 long lastMsg = 0;
 int soilMoisture = 0;
 String valveStatus = "OFF";
+const float WaterConsumption = 0.5;
+float totalWaterConsumption = 0.0;
 //--Variabel TIMESTAMP
 unsigned long startTime = 0;
 unsigned long durationON = 0;
@@ -110,17 +112,19 @@ void loop() {
       if (!isValveActive) {         // Jika sebelumnya OFF dan sekarang jadi ON
         startTime = millis();       // Mulai hitung waktu
         isValveActive = true;
-      }
-
+      
       durationON = (millis() - startTime) / 1000;
 
+      totalWaterConsumption = durationON * WaterConsumption;
+
       myservo.write(90); 
-      valveStatus = "ON";
+      valveStatus = "ON";}
     } else {
       myservo.write(0);  
       valveStatus = "OFF";
       isValveActive = false;   
       durationON = 0;
+      totalWaterConsumption = 0;
     }
 
     // 3. PACKING DATA KE JSON
@@ -131,6 +135,7 @@ void loop() {
     payload += "\"soil\":"; payload += soilMoisture; payload += ",";
     payload += "\"valve\":\""; payload += valveStatus; payload += "\",";
     payload += "\"duration\":"; payload += durationON;
+    payload += "\"water\":"; payload += totalWaterConsumption;
     payload += "}";
 
     // 4. KIRIM KE MQTT BROKER
