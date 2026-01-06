@@ -134,7 +134,7 @@ void loop() {
     payload += "\"hum\":"; payload += h; payload += ",";
     payload += "\"soil\":"; payload += soilMoisture; payload += ",";
     payload += "\"valve\":\""; payload += valveStatus; payload += "\",";
-    payload += "\"duration\":"; payload += durationON;
+    payload += "\"duration\":"; payload += durationON; payload +=;
     payload += "\"water\":"; payload += totalWaterConsumption;
     payload += "}";
 
