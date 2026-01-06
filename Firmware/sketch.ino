@@ -27,7 +27,6 @@ Servo myservo;
 long lastMsg = 0;
 int soilMoisture = 0;
 String valveStatus = "OFF";
-const float WaterConsumption = 0.5;
 float totalWaterConsumption = 0.0;
 //--Variabel TIMESTAMP
 unsigned long startTime = 0;
@@ -107,19 +106,22 @@ void loop() {
     }
 
     // 2. LOGIKA KONTROL (SMART FARMING)
-    // Jika tanah kering (< 30%), buka keran
     if (soilMoisture < 30) {
-      if (!isValveActive) {         // Jika sebelumnya OFF dan sekarang jadi ON
-        startTime = millis();       // Mulai hitung waktu
+      // BAGIAN INI HANYA UNTUK MENCATAT WAKTU MULAI (SEKALI SAJA)
+      if (isValveActive == false) {
+        startTime = millis();       
         isValveActive = true;
+        myservo.write(90); 
+        valveStatus = "ON";
+      }
       
+      // PINDAHKAN RUMUS KE SINI (DI LUAR IF isValveActive == false)
+      // Agar dihitung setiap loop selama valve ON
       durationON = (millis() - startTime) / 1000;
+      totalWaterConsumption = durationON * 0.5; // 0.5 liter per detik
 
-      totalWaterConsumption = durationON * WaterConsumption;
-
-      myservo.write(90); 
-      valveStatus = "ON";}
     } else {
+      // RESET SAAT MATI
       myservo.write(0);  
       valveStatus = "OFF";
       isValveActive = false;   
@@ -134,7 +136,8 @@ void loop() {
     payload += "\"hum\":"; payload += h; payload += ",";
     payload += "\"soil\":"; payload += soilMoisture; payload += ",";
     payload += "\"valve\":\""; payload += valveStatus; payload += "\",";
-    payload += "\"duration\":"; payload += durationON; payload +=;
+    payload += "\"duration\":"; payload += durationON;
+    payload += ",";
     payload += "\"water\":"; payload += totalWaterConsumption;
     payload += "}";
 
