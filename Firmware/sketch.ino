@@ -27,6 +27,10 @@ Servo myservo;
 long lastMsg = 0;
 int soilMoisture = 0;
 String valveStatus = "OFF";
+//--Variabel TIMESTAMP
+unsigned long startTime = 0;
+unsigned long durationON = 0;
+bool isValveActive = false;
 
 void setup_wifi() {
   delay(10);
@@ -103,11 +107,16 @@ void loop() {
     // 2. LOGIKA KONTROL (SMART FARMING)
     // Jika tanah kering (< 30%), buka keran
     if (soilMoisture < 30) {
-      myservo.write(90); // Posisi Buka (90 derajat)
+      if (!isValveActive) {         // Jika sebelumnya OFF dan sekarang jadi ON
+        startTime = millis();       // Mulai hitung waktu
+        isValveActive = true;
+      }
+      myservo.write(90); 
       valveStatus = "ON";
     } else {
-      myservo.write(0);  // Posisi Tutup (0 derajat)
+      myservo.write(0);  
       valveStatus = "OFF";
+      isValveActive = false;        // Reset status
     }
 
     // 3. PACKING DATA KE JSON
@@ -117,6 +126,7 @@ void loop() {
     payload += "\"hum\":"; payload += h; payload += ",";
     payload += "\"soil\":"; payload += soilMoisture; payload += ",";
     payload += "\"valve\":\""; payload += valveStatus; payload += "\"";
+    payload += "\"duration\":"; payload += durationON;
     payload += "}";
 
     // 4. KIRIM KE MQTT BROKER
