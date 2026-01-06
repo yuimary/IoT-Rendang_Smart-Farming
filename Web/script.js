@@ -53,9 +53,11 @@ function onMessageArrived(message) {
         document.getElementById("soil").innerText = data.soil;
         document.getElementById("valve").innerText = data.valve;
 
-        // --- LOGIKA STATISTIK WAKTU ---
-        handleStatistics(data.valve);
+        if(data.valve === "ON") {
+            document.getElementById("total-time").inner.Text = data.duration;
 
+            lastOnTime = data.duration;
+        }
     } catch (e) {
         console.error("Error parsing JSON:", e);
     }
@@ -98,4 +100,5 @@ const options = {
 
 // Mulai koneksi
 document.getElementById("connection-status").innerText = "Status: Menghubungkan ke Broker...";
+
 client.connect(options);
