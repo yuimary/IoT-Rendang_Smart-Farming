@@ -111,12 +111,16 @@ void loop() {
         startTime = millis();       // Mulai hitung waktu
         isValveActive = true;
       }
+
+      durationON = (millis() - startTime) / 1000;
+
       myservo.write(90); 
       valveStatus = "ON";
     } else {
       myservo.write(0);  
       valveStatus = "OFF";
-      isValveActive = false;        // Reset status
+      isValveActive = false;   
+      durationON = 0;
     }
 
     // 3. PACKING DATA KE JSON
@@ -125,7 +129,7 @@ void loop() {
     payload += "\"temp\":"; payload += t; payload += ",";
     payload += "\"hum\":"; payload += h; payload += ",";
     payload += "\"soil\":"; payload += soilMoisture; payload += ",";
-    payload += "\"valve\":\""; payload += valveStatus; payload += "\"";
+    payload += "\"valve\":\""; payload += valveStatus; payload += "\",";
     payload += "\"duration\":"; payload += durationON;
     payload += "}";
 
