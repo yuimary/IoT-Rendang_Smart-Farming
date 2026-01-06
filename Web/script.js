@@ -54,10 +54,12 @@ function onMessageArrived(message) {
         document.getElementById("valve").innerText = data.valve;
 
         if(data.valve === "ON") {
-            document.getElementById("total-time").innerText = data.duration + " detik";
+            document.getElementById("total-time").innerText = data.duration + " Detik";
 
-            lastOnTime = data.duration;
-        }
+            lastOnTime = data.durationById("water-usage").innerText = data.water.toFixed(2) + " Liter";
+        } else {
+            document.getElementById("total-time").innerText = " 0 Detik";
+            document.getElementById("water-usage").innerText = " 0 Liter";
     } catch (e) {
         console.error("Error parsing JSON:", e);
     }
@@ -102,4 +104,5 @@ const options = {
 document.getElementById("connection-status").innerText = "Status: Menghubungkan ke Broker...";
 
 client.connect(options);
+
 
