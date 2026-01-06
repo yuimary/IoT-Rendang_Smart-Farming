@@ -4,7 +4,7 @@ const port = 8081; // Port WebSocket Secure (WSS) untuk HTTPS/GitHub Pages
 // const port = 8080; // Gunakan ini jika test lokal tanpa HTTPS bermasalah
 
 // !!! GANTI TOPIK INI SESUAI DENGAN KODE WOKWI ANDA !!!
-const topic = "projek_iot/smart_farming/nim_kalian"; 
+const topic = "projek_iot/smart_farming/iotrendangganteng"; 
 
 // Membuat Client ID unik agar broker tidak bingung
 const clientID = "WebClient-" + parseInt(Math.random() * 100000);
@@ -54,7 +54,7 @@ function onMessageArrived(message) {
         document.getElementById("valve").innerText = data.valve;
 
         if(data.valve === "ON") {
-            document.getElementById("total-time").inner.Text = data.duration;
+            document.getElementById("total-time").innerText = data.duration + " detik";
 
             lastOnTime = data.duration;
         }
@@ -102,3 +102,4 @@ const options = {
 document.getElementById("connection-status").innerText = "Status: Menghubungkan ke Broker...";
 
 client.connect(options);
+
