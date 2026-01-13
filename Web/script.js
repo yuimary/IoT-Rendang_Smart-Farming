@@ -10,7 +10,7 @@ const topic = "projek_iot/smart_farming/iotrendangganteng";
 const clientID = "WebClient-" + parseInt(Math.random() * 100000);
 
 // Inisialisasi Paho Client
-const client = new Paho.MQTT.Client(broker, port, "/mqtt", clientID);
+const client = new Paho.MQTT.Client(broker, port, "", clientID);
 
 // Variabel Statistik
 let totalOnTime = 0; // dalam detik
@@ -91,6 +91,7 @@ const options = {
 document.getElementById("connection-status").innerText = "Status: Menghubungkan ke Broker...";
 
 client.connect(options);
+
 
 
 
