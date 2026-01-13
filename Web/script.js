@@ -63,30 +63,14 @@ function onMessageArrived(message) {
             document.getElementById("total-time").innerText = " 0 Detik";
             document.getElementById("water-usage").innerText = " 0 Liter";
         }
+        if (document.getElementById("net-delay")) {
+            document.getElementById("net-delay").innerText = data.delay + " ms";
+        }
+        if (document.getElementById("net-loss")) {
+            document.getElementById("net-loss").innerText = data.packetLoss?.toFixed(2) + " %";
+        }
     } catch (e) {
         console.error("Error parsing JSON:", e);
-    }
-}
-
-// Fungsi Hitung Statistik Penggunaan Air
-function handleStatistics(valveStatus) {
-    if (valveStatus === "ON" && !isValveOpen) {
-        // Keran baru saja NYALA
-        isValveOpen = true;
-        
-        // Mulai timer hitungan detik real-time
-        if(timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            totalOnTime++;
-            document.getElementById("total-time").innerText = totalOnTime;
-        }, 1000); // Update setiap 1 detik
-        
-    } else if (valveStatus === "OFF" && isValveOpen) {
-        // Keran baru saja MATI
-        isValveOpen = false;
-        
-        // Hentikan timer
-        if(timerInterval) clearInterval(timerInterval);
     }
 }
 
@@ -107,6 +91,7 @@ const options = {
 document.getElementById("connection-status").innerText = "Status: Menghubungkan ke Broker...";
 
 client.connect(options);
+
 
 
 
