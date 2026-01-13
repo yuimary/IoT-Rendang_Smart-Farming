@@ -32,7 +32,14 @@ float totalWaterConsumption = 0.0;
 unsigned long startTime = 0;
 unsigned long durationON = 0;
 bool isValveActive = false;
+//--Variabel Network Monitor
+unsigned long sendTime;
+unsigned long delayTime;
 
+int packetSent = 0;
+int packetSuccess = 0;
+float packetLoss = 0;
+//==================
 void setup_wifi() {
   delay(10);
   Serial.println();
@@ -65,6 +72,24 @@ void reconnect() {
       delay(5000);
     }
   }
+}
+
+bool publishWithMonitor(const char* topic, const char* payload) {
+  sendTime = millis();
+  packetSent++;
+
+  bool status = client.publish(topic, payload);
+
+  if (status) {
+    delayTime = millis() - sendTime;
+    packetSuccess++;
+  }
+  return status;
+}
+
+float hitungPacketLoss() {
+  if (packetSent == 0) return 0;
+  return ((float)(packetSent - packetSuccess) / packetSent) * 100.0;
 }
 
 void setup() {
@@ -139,11 +164,14 @@ void loop() {
     payload += "\"duration\":"; payload += durationON;
     payload += ",";
     payload += "\"water\":"; payload += totalWaterConsumption;
+    payload += "\"delay\":"; payload += delayTime; payload += ",";
+    payload += "\"sendTs\":"; payload += sendTime; payload += ",";
+    payload += "\"packetLoss\":"; payload += hitungPacketLoss(); payload += ",";
     payload += "}";
 
     // 4. KIRIM KE MQTT BROKER
     Serial.print("Publish message: ");
     Serial.println(payload);
-    client.publish(mqtt_topic, payload.c_str());
+    publishWithMonitor(mqtt_topic, payload.c_str());
   }
 }
