@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Farming Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -32,31 +35,44 @@
             </div>
         </div>
 
-        <div class="stats-section">
-    <h2>📊 Statistik Penggunaan Air</h2>
-    <div class="stats-card">
-        <p>Total Waktu Keran Menyala:</p>
-        <p class="stats-value"><span id="total-time">0</span> Detik</p>
-        
-        <p>Estimasi Air Terpakai:</p>
-        <p class="stats-value"><span id="water-usage">0</span> Liter</p>
-        
-        <small>(Dihitung berdasarkan durasi penyiraman terakhir)</small>
-    </div>
-            <div class="stats-card">
-    <h3>📡 Network Monitor</h3>
-    <p>Latency: <span id="delayTime">0</span></p>
-    <p>Packet Loss: <span id="packetLoss">0</span></p>
-</div>
+        <div class="charts-container" style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 30px; margin-bottom: 20px;">
             
-</div>
+            <div style="flex: 1; min-width: 300px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h4 style="margin-top: 0; text-align: center; color: #333;">🌊 Grafik Air (Liter)</h4>
+                <canvas id="waterChart"></canvas>
+            </div>
+
+            <div style="flex: 1; min-width: 300px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h4 style="margin-top: 0; text-align: center; color: #333;">📡 Live Network Latency (ms)</h4>
+                <canvas id="networkChart"></canvas>
+            </div>
+
         </div>
+
+        <div class="stats-section">
+            <h2>📊 Statistik & Monitoring</h2>
+            
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                <div class="stats-card">
+                    <p>Total Waktu Keran Menyala:</p>
+                    <p class="stats-value"><span id="total-time">0</span> Detik</p>
+                    
+                    <p>Estimasi Air Terpakai:</p>
+                    <p class="stats-value"><span id="water-usage">0</span> Liter</p>
+                    
+                    <small>(Dihitung berdasarkan durasi penyiraman terakhir)</small>
+                </div>
+
+                <div class="stats-card">
+                    <h3>📡 Network Status</h3>
+                    <p>Latency: <span id="delayTime">0</span> ms</p>
+                    <p>Packet Loss: <span id="packetLoss">0</span> %</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script src="script.js"></script>
 </body>
-
 </html>
-
-
-

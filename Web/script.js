@@ -1,36 +1,88 @@
 // --- KONFIGURASI MQTT ---
-const broker = "broker.emqx.io";
-const port = 8084;  // Port WebSocket Secure (WSS) untuk HTTPS/GitHub Pages
-// const port = 8080; // Gunakan ini jika test lokal tanpa HTTPS bermasalah
+const broker = "broker.emqx.io"; // Broker Publik Stabil
+const port = 8084; // Port WebSocket Secure (WSS)
+const topic = "projek_iot/smart_farming/iotrendangganteng"; // Topik kamu
 
-// !!! GANTI TOPIK INI SESUAI DENGAN KODE WOKWI ANDA !!!
-const topic = "projek_iot/smart_farming/iotrendangganteng"; 
-
-// Membuat Client ID unik agar broker tidak bingung
+// Membuat Client ID unik
 const clientID = "WebClient-" + parseInt(Math.random() * 100000);
 
 // Inisialisasi Paho Client
 const client = new Paho.MQTT.Client(broker, port, clientID);
 
-// Variabel Statistik
-let totalOnTime = 0; // dalam detik
-let lastOnTime = 0;
-let isValveOpen = false;
-let timerInterval = null;
+// --- KONFIGURASI CHART.JS (GRAFIK) ---
 
-// --- FUNGSI UTAMA ---
+// 1. Setup Grafik Air
+const ctxWater = document.getElementById('waterChart').getContext('2d');
+const waterChart = new Chart(ctxWater, {
+    type: 'line',
+    data: {
+        labels: [], // Label Waktu
+        datasets: [{
+            label: 'Air Terpakai (Liter)',
+            data: [],
+            borderColor: '#3498db', // Warna Biru
+            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        animation: { duration: 0 }, // Matikan animasi biar cepat
+        scales: { y: { beginAtZero: true } }
+    }
+});
 
-// 1. Saat berhasil konek
+// 2. Setup Grafik Network
+const ctxNet = document.getElementById('networkChart').getContext('2d');
+const networkChart = new Chart(ctxNet, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Latency (ms)',
+            data: [],
+            borderColor: '#e74c3c', // Warna Merah
+            backgroundColor: 'rgba(231, 76, 60, 0.2)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.2
+        }]
+    },
+    options: {
+        responsive: true,
+        animation: { duration: 0 },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+// Fungsi Update Grafik
+function updateChartData(chart, label, data) {
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach((dataset) => {
+        dataset.data.push(data);
+    });
+
+    // Batasi hanya menampilkan 20 data terakhir agar tidak berat
+    if (chart.data.labels.length > 20) {
+        chart.data.labels.shift();
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.shift();
+        });
+    }
+    chart.update();
+}
+
+// --- FUNGSI UTAMA MQTT ---
+
 function onConnect() {
     console.log("Connected to Broker!");
     document.getElementById("connection-status").innerText = "Status: Terhubung 🟢";
     document.getElementById("connection-status").style.color = "green";
-    
-    // Subscribe ke topik
     client.subscribe(topic);
 }
 
-// 2. Saat koneksi putus
 function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
         console.log("Connection Lost: " + responseObject.errorMessage);
@@ -39,36 +91,48 @@ function onConnectionLost(responseObject) {
     }
 }
 
-// 3. Saat pesan masuk (Data dari Wokwi)
 function onMessageArrived(message) {
     console.log("Data Masuk: " + message.payloadString);
     
     try {
-        // Parsing data JSON dari Wokwi
         const data = JSON.parse(message.payloadString);
-
-        // Update Tampilan HTML
+        
+        // 1. Update Tampilan Angka (Kartu)
         document.getElementById("temp").innerText = data.temp.toFixed(1);
         document.getElementById("hum").innerText = data.hum.toFixed(1);
         document.getElementById("soil").innerText = data.soil;
         document.getElementById("valve").innerText = data.valve;
 
+        // 2. Update Tampilan Statistik Text
         if(data.valve === "ON") {
             document.getElementById("total-time").innerText = data.duration + " Detik";
-
             if(data.water !== undefined) {
-            document.getElementById("water-usage").innerText = data.water.toFixed(2) + " Liter";
+                document.getElementById("water-usage").innerText = data.water.toFixed(2) + " Liter";
             }
         } else {
-            document.getElementById("total-time").innerText = " 0 Detik";
-            document.getElementById("water-usage").innerText = " 0 Liter";
+             // Opsional: Reset text jika mati, atau biarkan nilai terakhir
+             // document.getElementById("total-time").innerText = "0 Detik"; 
         }
+
         if (document.getElementById("delayTime")) {
-            document.getElementById("delayTime").innerText = data.delay + " ms";
+            document.getElementById("delayTime").innerText = data.delay;
         }
         if (document.getElementById("packetLoss")) {
-            document.getElementById("packetLoss").innerText = data.packetLoss?.toFixed(2) + " %";
+            document.getElementById("packetLoss").innerText = data.packetLoss?.toFixed(2);
         }
+
+        // 3. Update GRAFIK (Chart.js)
+        const timeLabel = new Date().toLocaleTimeString(); // Jam sekarang
+
+        // Update Grafik Air
+        // Jika data.water ada isinya, masukkan ke grafik. Jika tidak, masukkan 0.
+        let waterVal = (data.water !== undefined) ? data.water : 0;
+        updateChartData(waterChart, timeLabel, waterVal);
+
+        // Update Grafik Latency
+        let delayVal = (data.delay !== undefined) ? data.delay : 0;
+        updateChartData(networkChart, timeLabel, delayVal);
+
     } catch (e) {
         console.error("Error parsing JSON:", e);
     }
@@ -79,7 +143,7 @@ client.onConnectionLost = onConnectionLost;
 client.onMessageArrived = onMessageArrived;
 
 const options = {
-    useSSL: true, // Wajib True untuk GitHub Pages (HTTPS)
+    useSSL: true, // Wajib True untuk GitHub Pages
     onSuccess: onConnect,
     onFailure: function(e) {
         console.log("Connect failed:", e);
@@ -88,16 +152,5 @@ const options = {
 };
 
 // Mulai koneksi
-document.getElementById("connection-status").innerText = "Status: Menghubungkan ke Broker...";
-
+document.getElementById("connection-status").innerText = "Status: Menghubungkan ke EMQX...";
 client.connect(options);
-
-
-
-
-
-
-
-
-
-
