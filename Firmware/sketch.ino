@@ -6,7 +6,8 @@
 // --- KONFIGURASI WIFI & MQTT ---
 const char* ssid = "Wokwi-GUEST"; // Wifi virtual Wokwi
 const char* password = "";
-const char* mqtt_server = "test.mosquitto.org"; // Broker Publik Gratis
+const char* mqtt_server = "broker.emqx.io"; 
+const int mqtt_port = 1883; 
 
 // GANTI "nim_kalian" DENGAN NIM ANDA AGAR TIDAK BENTROK
 const char* mqtt_topic = "projek_iot/smart_farming/iotrendangganteng"; 
@@ -164,10 +165,11 @@ void loop() {
     payload += "\"duration\":"; payload += durationON;
     payload += ",";
     payload += "\"water\":"; payload += totalWaterConsumption;
+    payload += ",";
     payload += "\"delay\":"; payload += delayTime; payload += ",";
     payload += "\"sendTs\":"; payload += sendTime; payload += ",";
-    payload += "\"packetLoss\":"; payload += hitungPacketLoss(); payload +=;
-    payload += "}";
+    payload += "\"packetLoss\":"; payload += hitungPacketLoss(); payload += "}";
+    
 
     // 4. KIRIM KE MQTT BROKER
     Serial.print("Publish message: ");
