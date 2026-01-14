@@ -1,6 +1,6 @@
 // --- KONFIGURASI MQTT ---
-const broker = "test.mosquitto.org";
-const port = 8081; // Port WebSocket Secure (WSS) untuk HTTPS/GitHub Pages
+const broker = "broker.emqx.io";
+const port = 8084;  // Port WebSocket Secure (WSS) untuk HTTPS/GitHub Pages
 // const port = 8080; // Gunakan ini jika test lokal tanpa HTTPS bermasalah
 
 // !!! GANTI TOPIK INI SESUAI DENGAN KODE WOKWI ANDA !!!
