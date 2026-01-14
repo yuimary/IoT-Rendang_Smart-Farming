@@ -166,7 +166,7 @@ void loop() {
     payload += "\"water\":"; payload += totalWaterConsumption;
     payload += "\"delay\":"; payload += delayTime; payload += ",";
     payload += "\"sendTs\":"; payload += sendTime; payload += ",";
-    payload += "\"packetLoss\":"; payload += hitungPacketLoss(); payload += ",";
+    payload += "\"packetLoss\":"; payload += hitungPacketLoss(); payload +=;
     payload += "}";
 
     // 4. KIRIM KE MQTT BROKER
